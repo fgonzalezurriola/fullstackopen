@@ -1,10 +1,19 @@
+const Part = (props) => {
+    const part = props.part
+    const exercise = props.exercise
+    return (
+        <>
+          <p>{part} {exercise}</p>
+        </>
+    )
+}
+
 const Content = (props) => {
-    const contents = props.contents
     return (
       <>
-        <p>{contents[0].part} {contents[0].exercise}</p>
-        <p>{contents[1].part} {contents[1].exercise}</p>
-        <p>{contents[2].part} {contents[2].exercise}</p>
+        <Part part={props.contents[0].part} exercise={props.contents[0].exercise} />
+        <Part part={props.contents[1].part} exercise={props.contents[1].exercise} />
+        <Part part={props.contents[2].part} exercise={props.contents[2].exercise} />
       </>
     )
 }
