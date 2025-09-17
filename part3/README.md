@@ -2,13 +2,13 @@
 
 ## Exercises
 
-3.9 to 3.11 here
+3.9 to 3.11 and 3.21 are deployed in render in the following link
 
 https://fullstackopen-r0da.onrender.com/
 
 ### 3.12
 
-results in my terminal
+results on my terminal
 
 ```sh
  node mongo.js 50mongosociedades "Name" 123456789
@@ -23,5 +23,3 @@ Name 123456789
 adding a new person to phonebook
 added test number 999999999 to phonebook
 ```
-
-##
