@@ -5,6 +5,7 @@ const express = require("express");
 const morgan = require("morgan");
 const app = express();
 const Person = require("./models/persons");
+const persons = require("./models/persons");
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(express.static("dist"));
@@ -35,46 +36,27 @@ app.get("/api/persons/:id", (request, response) => {
   });
 });
 
-// app.get("/info", (request, response) => {
-//   const people = persons.length;
-//   const date = new Date();
-//   const res1 = `<p>Phonebook has info for ${people} people</p>`;
-//   const res2 = `<p>${date}</p>`;
-//   const res = res1 + res2;
-//   response.send(res);
-// });
+app.post("/api/persons", (request, response) => {
+  const { name, number } = request.body;
 
-// app.get("/api/persons/:id", (request, response) => {
-//   const id = Number(request.params.id);
-//   const person = persons.find((person) => person.id === id);
-//   if (person) {
-//     response.json(person);
-//   } else {
-//     response.status(404).end();
-//   }
-// });
+  if (!name || !number) {
+    return response.status(400).json({ error: "name or number is missing" });
+  }
 
-// app.delete("/api/persons/:id", (request, response) => {
-//   const id = Number(request.params.id);
-//   persons = persons.filter((person) => person.id !== id);
-//   response.status(204).end();
-// });
+  const newPerson = new Person({ name, number });
+  newPerson.save().then((savedPerson) => {
+    response.status(201).json(savedPerson);
+  });
+});
 
-// app.post("/api/persons", (request, response) => {
-//   const { name, number } = request.body;
-
-//   if (!name.trim() || !number) {
-//     return response.status(400).json({ error: "missing content, name and number are required" });
-//   }
-
-//   if (persons.some((person) => person.name === name)) {
-//     return response.status(400).json({ error: "name must be unique" });
-//   }
-
-//   const resPerson = { id: Math.floor(Math.random() * 10e8), name: name, number: number };
-//   persons = persons.concat(resPerson);
-//   response.json(resPerson);
-// });
+app.delete("/api/persons/:id", (request, response) => {
+  Person.findByIdAndDelete(request.params.id).then((person) => {
+    if (!person) {
+      return response.status(404).end();
+    }
+    response.status(204).end();
+  });
+});
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
