@@ -49,6 +49,7 @@ app.post("/api/persons", (request, response) => {
   });
 });
 
+// 3.15
 app.delete("/api/persons/:id", (request, response) => {
   Person.findByIdAndDelete(request.params.id).then((person) => {
     if (!person) {
