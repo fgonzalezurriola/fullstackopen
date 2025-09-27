@@ -42,7 +42,7 @@ describe('User API tests', () => {
       assert(usernames.includes(newUser.username))
     })
 
-    test('creation fails with proper statuscode and message if username already taken', async () => {
+    test('creation fails with status 400 if username already taken', async () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = { username: 'root', name: 'superRoot', password: 'superHash' }
@@ -54,6 +54,74 @@ describe('User API tests', () => {
         .expect('Content-Type', /application\/json/)
 
       assert.strictEqual(result.body.error, 'username must be unique')
+
+      const usersAtEnd = await helper.usersInDb()
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('creation fails if username has less than 3 characters', async () => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = { username: 'ro', name: 'superRoot', password: 'superHash' }
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(result.body.error, 'username must be at least 3 characters long')
+
+      const usersAtEnd = await helper.usersInDb()
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('creation fails if password has less than 3 characters', async () => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = { username: 'root', name: 'root', password: 'su' }
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(result.body.error, 'password must be at least 3 characters long')
+
+      const usersAtEnd = await helper.usersInDb()
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('creation fails if username is not provided', async () => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = { name: 'superRoot', password: 'superHash' }
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(result.body.error, 'username is required')
+
+      const usersAtEnd = await helper.usersInDb()
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('creation fails if password is not provided', async () => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = { username: 'root', name: 'superRoot' }
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(result.body.error, 'password is required')
 
       const usersAtEnd = await helper.usersInDb()
       assert.strictEqual(usersAtEnd.length, usersAtStart.length)
