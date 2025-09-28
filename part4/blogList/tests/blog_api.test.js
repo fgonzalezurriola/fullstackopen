@@ -10,6 +10,12 @@ const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
+const getAuthToken = async () => {
+  const loginData = { username: 'blogtestuser', password: 'testpassword' }
+  const loginResult = await api.post('/api/login').send(loginData)
+  return loginResult.body.token
+}
+
 describe('Blog API tests', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
@@ -55,13 +61,14 @@ describe('Blog API tests', () => {
     })
 
     test('blog posts have likes', async () => {
+      const token = await getAuthToken()
       const likelessBlog = {
         title: 'likelessBlog',
         author: 'me',
         url: 'example.com',
       }
 
-      await api.post('/api/blogs').send(likelessBlog).expect(201)
+      await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(likelessBlog).expect(201)
       const response = await api.get('/api/blogs')
       response.body.forEach((blog) => {
         assert('likes' in blog)
@@ -92,6 +99,7 @@ describe('Blog API tests', () => {
 
   describe('deletion of a note', () => {
     test('delete succeeds with status code 204', async () => {
+      const token = await getAuthToken()
       const newBlog = {
         title: 'to be deleted',
         author: 'me',
@@ -100,7 +108,11 @@ describe('Blog API tests', () => {
       }
 
       const blogsAtStart = await helper.blogsInDb()
-      const response = await api.post('/api/blogs').send(newBlog).expect(201)
+      const response = await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(201)
       await api.delete(`/api/blogs/${response.body.id}`).expect(204)
       const blogsAtEnd = await helper.blogsInDb()
 
@@ -122,6 +134,31 @@ describe('Blog API tests', () => {
       const newLikes = 100
       const fakeID = new mongoose.Types.ObjectId()
       await api.put(`/api/blogs/${fakeID}`).send({ likes: newLikes }).expect(404)
+    })
+  })
+
+  describe('token tests - login and using the token to create blogs', () => {
+    test('token is returned and valid format', async () => {
+      const loginData = { username: 'blogtestuser', password: 'testpassword' }
+      const loginResult = await api.post('/api/login').send(loginData)
+
+      const token = loginResult.body.token
+
+      assert(typeof token === 'string')
+      assert.strictEqual(token.split('.').length, 3)
+    })
+
+    test('token contains correct user information', async () => {
+      const jwt = require('jsonwebtoken')
+
+      const loginData = { username: 'blogtestuser', password: 'testpassword' }
+      const loginResult = await api.post('/api/login').send(loginData)
+
+      const token = loginResult.body.token
+      const decodedToken = jwt.verify(token, process.env.SECRET)
+
+      assert.strictEqual(decodedToken.username, 'blogtestuser')
+      assert(decodedToken.id)
     })
   })
 })
