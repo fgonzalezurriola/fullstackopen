@@ -98,7 +98,66 @@ describe('Blog API tests', () => {
     })
   })
 
-  describe('deletion of a note', () => {
+  describe('posting a blog', () => {
+    test('a valid blog can be added', async () => {
+      const token = await getAuthToken()
+      const newBlog = {
+        title: 'Test Blog',
+        author: 'Test Author',
+        url: 'http://example.com',
+        likes: 5,
+      }
+
+      const blogsAtStart = await helper.blogsInDb()
+
+      await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length + 1)
+
+      const titles = blogsAtEnd.map((b) => b.title)
+      assert(titles.includes('Test Blog'))
+    })
+
+    test('blog without title is not added', async () => {
+      const token = await getAuthToken()
+      const newBlog = {
+        author: 'Test Author',
+        url: 'http://example.com',
+        likes: 5,
+      }
+
+      const blogsAtStart = await helper.blogsInDb()
+
+      await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog).expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+    })
+
+    test('blog without url is not added', async () => {
+      const token = await getAuthToken()
+      const newBlog = {
+        title: 'Test Blog',
+        author: 'Test Author',
+        likes: 5,
+      }
+
+      const blogsAtStart = await helper.blogsInDb()
+
+      await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog).expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+    })
+  })
+
+  describe('deletion of a blog', () => {
     test('delete succeeds with status code 204', async () => {
       const token = await getAuthToken()
       const newBlog = {
@@ -147,7 +206,7 @@ describe('Blog API tests', () => {
     })
   })
 
-  describe('changing a note', () => {
+  describe('changing a blog', () => {
     test('succeeds with status code 200 if id is valid', async () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToUpdate = blogsAtStart[0]
@@ -186,6 +245,17 @@ describe('Blog API tests', () => {
 
       assert.strictEqual(decodedToken.username, 'blogtestuser')
       assert(decodedToken.id)
+    })
+
+    test('adding a blog fails with 401 if token is not provided', async () => {
+      const newBlog = {
+        title: 'no token blog',
+        author: 'me',
+        url: 'example.com',
+        likes: 7,
+      }
+
+      await api.post('/api/blogs').send(newBlog).expect(401)
     })
   })
 })
