@@ -4,17 +4,40 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const assert = require('assert')
-const blog = require('../models/blog')
+const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
 describe('Blog API tests', () => {
   beforeEach(async () => {
-    await blog.deleteMany({})
-    let blog1 = new blog(helper.initialBlogs[0])
-    await blog1.save()
-    let blog2 = new blog(helper.initialBlogs[1])
-    await blog2.save()
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('testpassword', 10)
+    const user = new User({
+      username: 'blogtestuser',
+      name: 'Blog Test User',
+      passwordHash,
+    })
+    const savedUser = await user.save()
+
+    const blog1 = new Blog({
+      ...helper.initialBlogs[0],
+      user: savedUser._id,
+    })
+    const savedBlog1 = await blog1.save()
+
+    const blog2 = new Blog({
+      ...helper.initialBlogs[1],
+      user: savedUser._id,
+    })
+    const savedBlog2 = await blog2.save()
+
+    await User.findByIdAndUpdate(savedUser._id, {
+      blogs: [savedBlog1._id, savedBlog2._id],
+    })
   })
 
   describe('get blogs api tests', () => {
@@ -48,6 +71,23 @@ describe('Blog API tests', () => {
         }
       })
     })
+
+    test('blogs have an user property', async () => {
+      const response = await api.get('/api/blogs')
+      response.body.forEach((blog) => {
+        assert('user' in blog)
+      })
+    })
+
+    test('blogs are returned with user information populated', async () => {
+      const response = await api.get('/api/blogs')
+
+      assert('user' in response.body[0])
+      assert('username' in response.body[0].user)
+      assert('name' in response.body[0].user)
+      assert('id' in response.body[0].user)
+      assert(!('passwordHash' in response.body[0].user))
+    })
   })
 
   describe('deletion of a note', () => {
@@ -74,7 +114,7 @@ describe('Blog API tests', () => {
       const blogToUpdate = blogsAtStart[0]
       const newLikes = 100
       await api.put(`/api/blogs/${blogToUpdate.id}`).send({ likes: newLikes }).expect(200)
-      const updatedLikes = await blog.findById(blogToUpdate.id)
+      const updatedLikes = await Blog.findById(blogToUpdate.id)
       assert.strictEqual(updatedLikes.likes, newLikes)
     })
 

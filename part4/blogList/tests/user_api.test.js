@@ -6,11 +6,13 @@ const helper = require('./test_helper')
 const assert = require('assert')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const Blog = require('../models/blog')
 
 const api = supertest(app)
 
 describe('User API tests', () => {
   beforeEach(async () => {
+    await Blog.deleteMany({})
     await User.deleteMany({})
 
     const passwordHash = await bcrypt.hash('sekret', 10)
@@ -42,6 +44,13 @@ describe('User API tests', () => {
       assert(usernames.includes(newUser.username))
     })
 
+    test('users are returned with their blogs populated', async () => {
+      const response = await api.get('/api/users')
+
+      assert('blogs' in response.body[0])
+      assert(Array.isArray(response.body[0].blogs))
+    })
+
     test('creation fails with status 400 if username already taken', async () => {
       const usersAtStart = await helper.usersInDb()
 
@@ -59,7 +68,7 @@ describe('User API tests', () => {
       assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
 
-    test('creation fails if username has less than 3 characters', async () => {
+    test('creation fails with status 400 if username has less than 3 characters', async () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = { username: 'ro', name: 'superRoot', password: 'superHash' }
@@ -76,7 +85,7 @@ describe('User API tests', () => {
       assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
 
-    test('creation fails if password has less than 3 characters', async () => {
+    test('creation fails with status 400 if password has less than 3 characters', async () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = { username: 'root', name: 'root', password: 'su' }
@@ -93,7 +102,7 @@ describe('User API tests', () => {
       assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
 
-    test('creation fails if username is not provided', async () => {
+    test('creation fails with status 400 if username is not provided', async () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = { name: 'superRoot', password: 'superHash' }
@@ -110,7 +119,7 @@ describe('User API tests', () => {
       assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
 
-    test('creation fails if password is not provided', async () => {
+    test('creation fails with status 400 if password is not provided', async () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = { username: 'root', name: 'superRoot' }
