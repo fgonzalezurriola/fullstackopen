@@ -69,6 +69,7 @@ describe('Blog API tests', () => {
       }
 
       await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(likelessBlog).expect(201)
+
       const response = await api.get('/api/blogs')
       response.body.forEach((blog) => {
         assert('likes' in blog)
@@ -108,15 +109,41 @@ describe('Blog API tests', () => {
       }
 
       const blogsAtStart = await helper.blogsInDb()
-      const response = await api
-        .post('/api/blogs')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newBlog)
-        .expect(201)
-      await api.delete(`/api/blogs/${response.body.id}`).expect(204)
+      const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog).expect(201)
+      await api.delete(`/api/blogs/${response.body.id}`).set('Authorization', `Bearer ${token}`).expect(204)
       const blogsAtEnd = await helper.blogsInDb()
 
       assert.strictEqual(blogsAtStart.length, blogsAtEnd.length)
+    })
+
+    test('only the creator of the blog can delete a blog', async () => {
+      const token = await getAuthToken()
+      const newBlog = {
+        title: 'to be deleted',
+        author: 'me',
+        url: 'example.com',
+        likes: 7,
+      }
+
+      const blogsAtStart = await helper.blogsInDb()
+      const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog).expect(201)
+
+      const passwordHash = await bcrypt.hash('otherpassword', 10)
+      const otherUser = new User({
+        username: 'otheruser',
+        name: 'Other User',
+        passwordHash,
+      })
+      await otherUser.save()
+
+      const otherLoginData = { username: 'otheruser', password: 'otherpassword' }
+      const otherLoginResult = await api.post('/api/login').send(otherLoginData)
+      const otherToken = otherLoginResult.body.token
+
+      await api.delete(`/api/blogs/${response.body.id}`).set('Authorization', `Bearer ${otherToken}`).expect(403)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      assert.strictEqual(blogsAtStart.length + 1, blogsAtEnd.length)
     })
   })
 
