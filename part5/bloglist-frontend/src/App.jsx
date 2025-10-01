@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
+import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -22,18 +24,6 @@ const App = () => {
     }
   }, [])
 
-  // const addBlog = (event) => {
-  //   event.preventDefault()
-  //   const newBlog = {
-  //     title: event.target.title.value,
-  //     author: event.target.author.value,
-  //     url: event.target.url.value,
-  //     likes: 0,
-  //   }
-
-  //   blogService.create(newBlog)
-  // }
-
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -54,29 +44,24 @@ const App = () => {
     console.log('logged out')
   }
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        <label>
-          username
-          <input type="text" value={username} onChange={({ target }) => setUsername(target.value)} />
-        </label>
-      </div>
-      <div>
-        <label>
-          password
-          <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} />
-        </label>
-      </div>
-      <button type="submit">login</button>
-    </form>
-  )
+  const createBlog = (blogObject) => {
+    blogService.create(blogObject).then((returnedBlog) => {
+      setBlogs(blogs.concat(returnedBlog))
+    })
+    console.log('blog created', blogObject)
+  }
 
   if (user === null) {
     return (
       <div>
         <h2>log in to application</h2>
-        {loginForm()}
+        <LoginForm
+          handleLogin={handleLogin}
+          username={username}
+          setUsername={setUsername}
+          password={password}
+          setPassword={setPassword}
+        />
       </div>
     )
   }
@@ -91,6 +76,7 @@ const App = () => {
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}
+      <BlogForm createBlog={createBlog} />
     </div>
   )
 }
