@@ -14,7 +14,6 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
   const [messageType, setMessageType] = useState('')
-  // const [loginVisible, setLoginVisible] = useState(false)
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -55,6 +54,18 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     window.location.reload()
     console.log('logged out')
+  }
+
+  const handleLike = (id) => {
+    const blog = blogs.find((b) => b.id === id)
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+    }
+
+    blogService.update(id, updatedBlog).then((returnedBlog) => {
+      setBlogs(blogs.map((b) => (b.id !== id ? b : returnedBlog)))
+    })
   }
 
   const createBlog = (blogObject) => {
@@ -115,7 +126,7 @@ const App = () => {
 
       <h2>blogs</h2>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} />
       ))}
     </div>
   )
