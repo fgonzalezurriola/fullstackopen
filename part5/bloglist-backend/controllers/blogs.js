@@ -11,7 +11,7 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
   const blog = new Blog(request.body)
   const user = request.user
 
-  if (blog.title === undefined || blog.url === undefined) {
+  if (!blog.title || !blog.url) {
     return response.status(400).json({ error: 'title and url are required' })
   }
 
