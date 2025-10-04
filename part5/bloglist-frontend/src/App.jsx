@@ -59,12 +59,19 @@ const App = () => {
   const handleLike = (id) => {
     const blog = blogs.find((b) => b.id === id)
     const updatedBlog = {
-      ...blog,
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
       likes: blog.likes + 1,
+      user: blog.user?.id || blog.user?._id || blog.user
     }
 
     blogService.update(id, updatedBlog).then((returnedBlog) => {
-      setBlogs(blogs.map((b) => (b.id !== id ? b : returnedBlog)))
+      const blogToUpdate = {
+        ...returnedBlog,
+        user: returnedBlog.user || blog.user
+      }
+      setBlogs(blogs.map((b) => (b.id !== id ? b : blogToUpdate)))
     })
 
     console.log('blog liked', blog)
