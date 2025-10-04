@@ -66,6 +66,33 @@ const App = () => {
     blogService.update(id, updatedBlog).then((returnedBlog) => {
       setBlogs(blogs.map((b) => (b.id !== id ? b : returnedBlog)))
     })
+
+    console.log('blog liked', blog)
+  }
+
+  const handleDeleteBlog = (id) => {
+    const blog = blogs.find((b) => b.id === id)
+    if (window.confirm(`Remove blog ${blog.title}`)) {
+      blogService
+        .deleteBlog(blog.id)
+        .then(() => {
+          setBlogs(blogs.filter((blog) => blog.id !== id))
+          setMessage(`Blog ${blog.title} deleted`)
+          setMessageType('success')
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+        .catch((error) => {
+          setMessage(`Error: ${error.response.data.error}`)
+          setMessageType('error')
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+    }
+
+    console.log('blog deleted', blog)
   }
 
   const createBlog = (blogObject) => {
@@ -116,7 +143,7 @@ const App = () => {
       <Notification message={message} type={messageType} />
 
       <div>
-        {user.name} logged in
+        {user.username} logged in
         <button onClick={handleLogout}>logout</button>
       </div>
 
@@ -128,7 +155,7 @@ const App = () => {
       {[...blogs]
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog key={blog.id} blog={blog} handleLike={handleLike} />
+          <Blog key={blog.id} blog={blog} user={user} handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} />
         ))}
     </div>
   )
