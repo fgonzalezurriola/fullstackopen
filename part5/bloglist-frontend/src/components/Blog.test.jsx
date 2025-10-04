@@ -45,8 +45,8 @@ describe('Blog', () => {
     render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
 
     const user2 = userEvent.setup()
-    const button = screen.getByText('view', { exact: false })
-    await user2.click(button)
+    const view = screen.getByText('view', { exact: false })
+    await user2.click(view)
 
     const url = screen.getByText('example.com', { exact: false })
     expect(url).toBeVisible()
@@ -56,5 +56,19 @@ describe('Blog', () => {
 
     const hide = screen.getByText('hide', { exact: false })
     expect(hide).toBeVisible()
+  })
+
+  test('at clicking the like button twice, the event handler is called twice', async () => {
+    render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
+
+    const user2 = userEvent.setup()
+    const view = screen.getByText('view', { exact: false })
+    await user2.click(view)
+
+    const likeButton = screen.getByRole('button', { name: 'like' })
+    await user2.click(likeButton)
+    await user2.click(likeButton)
+
+    expect(mockHandleLike.mock.calls).toHaveLength(2)
   })
 })
