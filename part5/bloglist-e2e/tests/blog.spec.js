@@ -36,28 +36,59 @@ describe('Blog app', () => {
   })
 
   describe('When logged in', () => {
-    beforeEach(async ({ page, request }) => {
+    beforeEach(async ({ page }) => {
       await loginWith(page, 'testuser', 'password')
       await expect(page.getByText('testuser logged in')).toBeVisible()
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await createBlog(page, 'playwright title', 'playwright', 'test.cl')
-      await expect(page.getByText('playwright title')).toBeVisible
+      const blog = await createBlog(page, 'playwright title', 'playwright', 'test.cl')
+      await expect(blog).toBeVisible()
     })
 
     test('a blog can be liked', async ({ page }) => {
-      await createBlog(page, 'like title', 'like author', 'like.url')
-      await page.getByText('view').click()
+      const blog = await createBlog(page, 'like title', 'like author', 'like.url')
+      await blog.getByRole('button', { name: 'view' }).click()
 
-      const likes = page.locator('.likes')
+      const likes = blog.getByTestId('likes')
 
       await expect(likes).toHaveCSS('color', 'rgb(128, 0, 128)')
       await expect(likes).toContainText('likes 0')
 
-      await page.getByRole('button', { name: 'like' }).click()
+      await blog.getByTestId('like-btn').click()
 
       await expect(likes).toContainText('likes 1')
+    })
+
+    test('ensuring that the user who created a blog can delete it', async ({ page }) => {
+      const blog = await createBlog(page, 'delete title', 'delete author', 'delete.url')
+      await blog.getByRole('button', { name: 'view' }).click()
+
+      page.once('dialog', (dialog) => dialog.accept())
+      await blog.getByRole('button', { name: 'remove' }).click()
+
+      const successDiv = page.locator('.success')
+      await expect(successDiv).toContainText('Blog delete title deleted')
+      await expect(page.locator('.blog', { hasText: 'delete title | delete author' })).toHaveCount(0)
+    })
+
+    test('only the creator sees the delete button', async ({ page, request }) => {
+      const blog = await createBlog(page, 'only creator title', 'only creator author', 'only.creator.url')
+
+      await request.post('/api/users', {
+        data: {
+          name: 'Another User',
+          username: 'anotheruser',
+          password: 'password',
+        },
+      })
+
+      await page.getByText('logout').click()
+      await loginWith(page, 'anotheruser', 'password')
+      await expect(page.getByText('anotheruser logged in')).toBeVisible()
+
+      await blog.getByRole('button', { name: 'view' }).click()
+      await expect(blog.getByRole('button', { name: 'remove' })).toHaveCount(0)
     })
   })
 })
