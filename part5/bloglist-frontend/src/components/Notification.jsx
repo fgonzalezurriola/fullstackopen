@@ -4,10 +4,18 @@ const Notification = ({ message, type }) => {
   }
 
   if (type === 'success') {
-    return <div style={{ color: 'green' }}>{message}</div>
+    return (
+      <div className="success" style={{ color: 'green' }}>
+        {message}
+      </div>
+    )
   }
   if (type === 'error') {
-    return <div style={{ color: 'red' }}>{message}</div>
+    return (
+      <div className="error" style={{ color: 'red' }}>
+        {message}
+      </div>
+    )
   }
 
   return <div>{message}</div>
