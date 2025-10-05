@@ -90,5 +90,30 @@ describe('Blog app', () => {
       await blog.getByRole('button', { name: 'view' }).click()
       await expect(blog.getByRole('button', { name: 'remove' })).toHaveCount(0)
     })
+
+    test('blogs are ordered by likes', async ({ page }) => {
+      await createBlog(page, 'alpha title', 'alpha author', 'a.url')
+      await createBlog(page, 'beta title', 'beta author', 'b.url')
+      await createBlog(page, 'gamma title', 'gamma author', 'c.url')
+
+      const gammaBlog = page.locator('[data-testid=blog-item]', { hasText: 'gamma title | gamma author' }).first()
+      await gammaBlog.getByRole('button', { name: 'view' }).click()
+      const gammaLikes = gammaBlog.getByTestId('likes')
+      await gammaBlog.getByTestId('like-btn').click()
+      await expect(gammaLikes).toContainText('likes 1')
+      await gammaBlog.getByTestId('like-btn').click()
+      await expect(gammaLikes).toContainText('likes 2')
+
+      const betaBlog = page.locator('[data-testid=blog-item]', { hasText: 'beta title | beta author' }).first()
+      await betaBlog.getByRole('button', { name: 'view' }).click()
+      const betaLikes = betaBlog.getByTestId('likes')
+      await betaBlog.getByTestId('like-btn').click()
+      await expect(betaLikes).toContainText('likes 1')
+
+      const allBlogs = page.locator('[data-testid=blog-item]')
+      await expect(allBlogs.nth(0)).toContainText('gamma title | gamma author')
+      await expect(allBlogs.nth(1)).toContainText('beta title | beta author')
+      await expect(allBlogs.nth(2)).toContainText('alpha title | alpha author')
+    })
   })
 })
