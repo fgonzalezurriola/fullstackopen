@@ -34,4 +34,16 @@ describe('Blog app', () => {
       await expect(page.getByText('testuser logged in')).not.toBeVisible()
     })
   })
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page, request }) => {
+      await loginWith(page, 'testuser', 'password')
+      await expect(page.getByText('testuser logged in')).toBeVisible()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await createBlog(page, 'playwright title', 'playwright', 'test.cl')
+      await expect(page.getByText('playwright title')).toBeVisible
+    })
+  })
 })
