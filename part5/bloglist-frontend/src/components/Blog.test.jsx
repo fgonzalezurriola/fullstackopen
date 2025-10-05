@@ -1,10 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
-// Make a test, which checks that the blog's URL and number of likes are shown when the button controlling the
-// shown details has been clicked.
 
-describe('Blog', () => {
+describe('Blog tests', () => {
   let blog
   let user
   let mockHandleLike
