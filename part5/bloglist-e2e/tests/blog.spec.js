@@ -45,5 +45,19 @@ describe('Blog app', () => {
       await createBlog(page, 'playwright title', 'playwright', 'test.cl')
       await expect(page.getByText('playwright title')).toBeVisible
     })
+
+    test('a blog can be liked', async ({ page }) => {
+      await createBlog(page, 'like title', 'like author', 'like.url')
+      await page.getByText('view').click()
+
+      const likes = page.locator('.likes')
+
+      await expect(likes).toHaveCSS('color', 'rgb(128, 0, 128)')
+      await expect(likes).toContainText('likes 0')
+
+      await page.getByRole('button', { name: 'like' }).click()
+
+      await expect(likes).toContainText('likes 1')
+    })
   })
 })
