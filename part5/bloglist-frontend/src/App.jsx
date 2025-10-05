@@ -63,13 +63,13 @@ const App = () => {
       author: blog.author,
       url: blog.url,
       likes: blog.likes + 1,
-      user: blog.user?.id || blog.user?._id || blog.user
+      user: blog.user?.id || blog.user?._id || blog.user,
     }
 
     blogService.update(id, updatedBlog).then((returnedBlog) => {
       const blogToUpdate = {
         ...returnedBlog,
-        user: returnedBlog.user || blog.user
+        user: returnedBlog.user || blog.user,
       }
       setBlogs(blogs.map((b) => (b.id !== id ? b : blogToUpdate)))
     })
