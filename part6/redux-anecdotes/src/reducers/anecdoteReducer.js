@@ -35,6 +35,12 @@ export const createAnecdote = (content) => {
   }
 }
 
+// {[...blogs]
+//   .sort((a, b) => b.likes - a.likes)
+//   .map((blog) => (
+//     <Blog key={blog.id} blog={blog} user={user} handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} />
+//   ))}
+
 const initialState = anecdotesAtStart.map(asObject)
 
 const reducer = (state = initialState, action) => {
@@ -48,7 +54,9 @@ const reducer = (state = initialState, action) => {
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1,
       }
-      return state.map((anecdote) => (anecdote.id !== id ? anecdote : changedAnecdote))
+      return [...state]
+        .map((anecdote) => (anecdote.id !== id ? anecdote : changedAnecdote))
+        .sort((a, b) => b.votes - a.votes)
     }
     case 'NEW_ANECDOTE': {
       return [...state, action.data]
