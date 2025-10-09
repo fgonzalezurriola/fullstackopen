@@ -5,8 +5,9 @@ import { setNotificationTimeout } from '../reducers/notificationReducer'
 const AnecdoteList = () => {
   const dispatch = useDispatch()
   const anecdotes = useSelector((state) => {
+    console.log('FULL STATE:', state)
+    console.log('ANECDOTES:', state.anecdotes)
     const filter = state.filter.toLowerCase()
-    console.log('filter', filter)
 
     if (filter === '') {
       return state.anecdotes
@@ -16,10 +17,9 @@ const AnecdoteList = () => {
   })
 
   const handleVote = (id) => {
-    console.log('vote', id)
-    dispatch(vote(id))
     const votedAnecdote = anecdotes.find((a) => a.id === id)
-    dispatch(setNotificationTimeout(`You voted: '${votedAnecdote.content}'`))
+    dispatch(vote(id))
+    dispatch(setNotificationTimeout(`You voted: '${votedAnecdote.content}'`, 5))
   }
 
   return (
