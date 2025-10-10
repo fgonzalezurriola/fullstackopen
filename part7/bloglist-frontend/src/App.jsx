@@ -80,7 +80,7 @@ const App = () => {
       blogService
         .deleteBlog(blog.id)
         .then(() => {
-          setBlogs(blogs.filter((blog) => blog.id !== id))
+          queryClient.setQueryData(['blogs'], (oldBlogs) => oldBlogs.filter((b) => b.id !== id))
           notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Blog ${blog.title} deleted` })
         })
         .catch((error) => {
@@ -91,25 +91,6 @@ const App = () => {
         })
     }
     console.log('blog deleted', blog)
-  }
-
-  const createBlog = (blogObject) => {
-    blogService
-      .create(blogObject)
-      .then((returnedBlog) => {
-        setBlogs(blogs.concat(returnedBlog))
-        notificationDispatch({
-          type: 'SET_NOTIFICATION',
-          payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-        })
-      })
-      .catch((error) => {
-        notificationDispatch({
-          type: 'SET_NOTIFICATION',
-          payload: `Error: ${error.response?.data?.error || error.message}`,
-        })
-      })
-    console.log('blog created', blogObject)
   }
 
   if (user === null) {
