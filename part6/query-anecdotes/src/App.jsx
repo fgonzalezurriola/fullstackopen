@@ -27,6 +27,12 @@ const App = () => {
         notificationDispatch({ type: 'CLEAR_NOTIFICATION' })
       }, 5000)
     },
+    onError: (error) => {
+      notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Error: ${error.response.data.error}` })
+      setTimeout(() => {
+        notificationDispatch({ type: 'CLEAR_NOTIFICATION' })
+      }, 5000)
+    },
   })
 
   const result = useQuery({
