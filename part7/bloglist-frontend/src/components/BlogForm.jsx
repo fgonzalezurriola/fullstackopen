@@ -1,59 +1,57 @@
-import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import blogService from '../services/blogs'
+import NotificationContext from '../NotificationContext'
+import { useContext } from 'react'
 
-const BlogForm = ({ createBlog }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+const BlogForm = () => {
+  const [notification, notificationDispatch] = useContext(NotificationContext)
+  const queryClient = useQueryClient()
 
-  const addBlog = (event) => {
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `a new blog ${newBlog.title} by ${newBlog.author} added`,
+      })
+      setTimeout(() => {
+        notificationDispatch({ type: 'CLEAR_NOTIFICATION' })
+      }, 5000)
+    },
+    onError: (error) => {
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: error.response?.data?.error || error.message,
+      })
+      setTimeout(() => {
+        notificationDispatch({ type: 'CLEAR_NOTIFICATION' })
+      }, 5000)
+    },
+  })
+
+  const onCreate = async (event) => {
     event.preventDefault()
-    const newBlog = {
-      title,
-      author,
-      url,
+    const form = event.currentTarget
+    const blog = {
+      title: form.blog.value,
+      author: form.author.value,
+      url: form.url.value,
     }
-    createBlog(newBlog)
-    setTitle('')
-    setAuthor('')
-    setUrl('')
-    console.log('new blog added', newBlog)
+    form.blog.value = ''
+    form.author.value = ''
+    form.url.value = ''
+    newBlogMutation.mutate(blog)
   }
 
   return (
     <div>
       <h2>Create new blog</h2>
-      <form onSubmit={addBlog}>
-        Title:
-        <input
-          name="title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="title here"
-          data-testid="title"
-        />
-        <br />
-        <label>
-          Author:
-          <input
-            name="author"
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-            placeholder="author here"
-            data-testid="author"
-          />
-        </label>
-        <br />
-        <label>
-          URL:
-          <input
-            name="url"
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            placeholder="url here"
-            data-testid="url"
-          />
-        </label>
-        <br />
+      <form onSubmit={onCreate}>
+        Title: <input name="blog" /> <br />
+        Author: <input name="author" /> <br />
+        URL: <input name="url" /> <br />
         <button type="submit">Create</button>
       </form>
     </div>

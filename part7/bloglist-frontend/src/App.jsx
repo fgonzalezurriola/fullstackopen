@@ -6,22 +6,18 @@ import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Togglable from './components/Togglable'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useContext } from 'react'
 import NotificationContext from './NotificationContext'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  const queryClient = useQueryClient()
   const [notification, notificationDispatch] = useContext(NotificationContext)
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+  const queryClient = useQueryClient()
+  const { data: blogs = [] } = useQuery({ queryKey: ['blogs'], queryFn: blogService.getAll })
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -70,7 +66,9 @@ const App = () => {
         ...returnedBlog,
         user: returnedBlog.user || blog.user,
       }
-      setBlogs(blogs.map((b) => (b.id !== id ? b : blogToUpdate)))
+      queryClient.setQueryData(['blogs'], (oldBlogs) => 
+        oldBlogs.map((b) => (b.id !== id ? b : blogToUpdate))
+      )
     })
 
     console.log('blog liked', blog)
@@ -146,7 +144,7 @@ const App = () => {
       </div>
 
       <Togglable buttonLabel="create new blog">
-        <BlogForm createBlog={createBlog} />
+        <BlogForm />
       </Togglable>
 
       <h2>blogs</h2>
