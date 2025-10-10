@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { useField } from '../hooks/useField'
 
 const CreateNew = (props) => {
-  const content = useField()
-  const author = useField()
-  const info = useField()
+  const { reset: resetContent, ...content } = useField('text')
+  const { reset: resetAuthor, ...author } = useField('text')
+  const { reset: resetInfo, ...info } = useField('text')
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -19,9 +19,9 @@ const CreateNew = (props) => {
   }
 
   const handleReset = () => {
-    content.onChange({ target: { value: '' } })
-    author.onChange({ target: { value: '' } })
-    info.onChange({ target: { value: '' } })
+    resetContent()
+    resetAuthor()
+    resetInfo()
   }
 
   return (
