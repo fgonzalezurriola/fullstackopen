@@ -9,13 +9,14 @@ import Togglable from './components/Togglable'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useContext } from 'react'
 import NotificationContext from './NotificationContext'
+import UserContext from './UserContext'
 
 const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
 
   const [notification, notificationDispatch] = useContext(NotificationContext)
+  const [user, userDispatch] = useContext(UserContext)
   const queryClient = useQueryClient()
   const { data: blogs = [] } = useQuery({ queryKey: ['blogs'], queryFn: blogService.getAll })
 
@@ -23,7 +24,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      userDispatch({ type: 'SET_USER', payload: user })
       blogService.setToken(user.token)
     }
   }, [])
@@ -34,7 +35,7 @@ const App = () => {
       const user = await loginService.login({ username, password })
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      setUser(user)
+      userDispatch({ type: 'SET_USER', payload: user })
       notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Login successful ${username}` })
       setUsername('')
       setPassword('')
@@ -66,8 +67,8 @@ const App = () => {
         ...returnedBlog,
         user: returnedBlog.user || blog.user,
       }
-      queryClient.setQueryData(['blogs'], (oldBlogs) => 
-        oldBlogs.map((b) => (b.id !== id ? b : blogToUpdate))
+      queryClient.setQueryData(['blogs'], (oldBlogs) =>
+        oldBlogs.map((b) => (b.id !== id ? b : blogToUpdate)),
       )
     })
 

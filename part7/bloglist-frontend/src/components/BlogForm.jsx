@@ -33,15 +33,15 @@ const BlogForm = () => {
 
   const onCreate = async (event) => {
     event.preventDefault()
-    const form = event.currentTarget
+    const form = event.target
     const blog = {
-      title: form.blog.value,
-      author: form.author.value,
-      url: form.url.value,
+      title: form.elements.blog.value,
+      author: form.elements.author.value,
+      url: form.elements.url.value,
     }
-    form.blog.value = ''
-    form.author.value = ''
-    form.url.value = ''
+    form.elements.blog.value = ''
+    form.elements.author.value = ''
+    form.elements.url.value = ''
     newBlogMutation.mutate(blog)
   }
 
@@ -49,9 +49,9 @@ const BlogForm = () => {
     <div>
       <h2>Create new blog</h2>
       <form onSubmit={onCreate}>
-        Title: <input name="blog" /> <br />
-        Author: <input name="author" /> <br />
-        URL: <input name="url" /> <br />
+        Title: <input name="blog" data-testid="title-input" /> <br />
+        Author: <input name="author" data-testid="author-input" /> <br />
+        URL: <input name="url" data-testid="url-input" /> <br />
         <button type="submit">Create</button>
       </form>
     </div>
