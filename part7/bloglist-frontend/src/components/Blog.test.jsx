@@ -23,14 +23,28 @@ describe('Blog tests', () => {
   })
 
   test('renders title and author', async () => {
-    render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
+    render(
+      <Blog
+        blog={blog}
+        user={user}
+        handleLike={mockHandleLike}
+        handleDeleteBlog={mockHandleDelete}
+      />,
+    )
 
     const element = screen.getByText('Clean Code | Robert C Martin')
     expect(element).toBeDefined()
   })
 
   test('renders doesnt shows url and likes by default', async () => {
-    render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
+    render(
+      <Blog
+        blog={blog}
+        user={user}
+        handleLike={mockHandleLike}
+        handleDeleteBlog={mockHandleDelete}
+      />,
+    )
 
     const url = screen.queryByText('example.com')
     expect(url).toBeNull()
@@ -40,7 +54,14 @@ describe('Blog tests', () => {
   })
 
   test('after clicking the button, the blog url and likes are shown', async () => {
-    render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
+    render(
+      <Blog
+        blog={blog}
+        user={user}
+        handleLike={mockHandleLike}
+        handleDeleteBlog={mockHandleDelete}
+      />,
+    )
 
     const user2 = userEvent.setup()
     const view = screen.getByText('view', { exact: false })
@@ -57,7 +78,14 @@ describe('Blog tests', () => {
   })
 
   test('at clicking the like button twice, the event handler is called twice', async () => {
-    render(<Blog blog={blog} user={user} handleLike={mockHandleLike} handleDeleteBlog={mockHandleDelete} />)
+    render(
+      <Blog
+        blog={blog}
+        user={user}
+        handleLike={mockHandleLike}
+        handleDeleteBlog={mockHandleDelete}
+      />,
+    )
 
     const user2 = userEvent.setup()
     const view = screen.getByText('view', { exact: false })

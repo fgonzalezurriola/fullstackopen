@@ -6,14 +6,18 @@ import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Togglable from './components/Togglable'
+import { useQueryClient } from '@tanstack/react-query'
+import { useContext } from 'react'
+import NotificationContext from './NotificationContext'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [message, setMessage] = useState(null)
-  const [messageType, setMessageType] = useState('')
+
+  const queryClient = useQueryClient()
+  const [notification, notificationDispatch] = useContext(NotificationContext)
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -35,18 +39,13 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setMessage(`Login successful ${username}`)
-      setMessageType('success')
+      notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Login successful ${username}` })
       setUsername('')
       setPassword('')
       console.log('logged in', user)
     } catch {
       console.log('error in handlelogin')
-      setMessage('wrong credentials')
-      setMessageType('error')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      notificationDispatch({ type: 'SET_NOTIFICATION', payload: 'wrong credentials' })
     }
   }
 
@@ -84,21 +83,15 @@ const App = () => {
         .deleteBlog(blog.id)
         .then(() => {
           setBlogs(blogs.filter((blog) => blog.id !== id))
-          setMessage(`Blog ${blog.title} deleted`)
-          setMessageType('success')
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
+          notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Blog ${blog.title} deleted` })
         })
         .catch((error) => {
-          setMessage(`Error: ${error.response.data.error}`)
-          setMessageType('error')
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
+          notificationDispatch({
+            type: 'SET_NOTIFICATION',
+            payload: `Error: ${error.response?.data?.error || error.message}`,
+          })
         })
     }
-
     console.log('blog deleted', blog)
   }
 
@@ -107,18 +100,16 @@ const App = () => {
       .create(blogObject)
       .then((returnedBlog) => {
         setBlogs(blogs.concat(returnedBlog))
-        setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-        setMessageType('success')
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+        notificationDispatch({
+          type: 'SET_NOTIFICATION',
+          payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+        })
       })
       .catch((error) => {
-        setMessage(`Error: ${error.response.data.error}`)
-        setMessageType('error')
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+        notificationDispatch({
+          type: 'SET_NOTIFICATION',
+          payload: `Error: ${error.response?.data?.error || error.message}`,
+        })
       })
     console.log('blog created', blogObject)
   }
@@ -127,7 +118,7 @@ const App = () => {
     return (
       <div>
         <h1>BlogsApp </h1>
-        <Notification message={message} type={messageType} />
+        <Notification />
 
         <h2>log in to application</h2>
 
@@ -147,7 +138,7 @@ const App = () => {
   return (
     <div>
       <h1>BlogsApp</h1>
-      <Notification message={message} type={messageType} />
+      <Notification />
 
       <div>
         {user.username} logged in
@@ -162,7 +153,13 @@ const App = () => {
       {[...blogs]
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog key={blog.id} blog={blog} user={user} handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} />
+          <Blog
+            key={blog.id}
+            blog={blog}
+            user={user}
+            handleLike={handleLike}
+            handleDeleteBlog={handleDeleteBlog}
+          />
         ))}
     </div>
   )

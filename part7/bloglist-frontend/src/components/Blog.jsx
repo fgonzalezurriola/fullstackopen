@@ -31,12 +31,18 @@ const Blog = ({ blog, user, handleLike, handleDeleteBlog }) => {
           <div>
             <span className="likes" data-testid="likes" style={{ color: 'purple' }}>
               likes {blog.likes}{' '}
-              <button data-testid="like-btn" onClick={() => handleLike(blog.id)}>like</button>
+              <button data-testid="like-btn" onClick={() => handleLike(blog.id)}>
+                like
+              </button>
             </span>
           </div>
           <div>{blog.user?.username || 'Unknown'}</div>
           {blog.user?.username === user.username && (
-            <button data-testid="remove-btn" style={buttonStyle} onClick={() => handleDeleteBlog(blog.id)}>
+            <button
+              data-testid="remove-btn"
+              style={buttonStyle}
+              onClick={() => handleDeleteBlog(blog.id)}
+            >
               remove
             </button>
           )}
