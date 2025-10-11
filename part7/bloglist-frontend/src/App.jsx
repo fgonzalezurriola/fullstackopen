@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
+import Users from './components/Users'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Togglable from './components/Togglable'
@@ -10,6 +11,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useContext } from 'react'
 import NotificationContext from './NotificationContext'
 import UserContext from './UserContext'
+import { Link, Route, Routes } from 'react-router-dom'
+import Blogs from './components/Blogs'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -115,32 +118,36 @@ const App = () => {
     )
   }
 
+  const padding = {
+    padding: 5,
+  }
+
   return (
     <div>
       <h1>BlogsApp</h1>
       <Notification />
 
       <div>
+        <Link style={padding} to="/">
+          home
+        </Link>
+        <Link style={padding} to="/users">
+          users
+        </Link>
+      </div>
+
+      <div>
         {user.username} logged in
         <button onClick={handleLogout}>logout</button>
       </div>
 
-      <Togglable buttonLabel="create new blog">
-        <BlogForm />
-      </Togglable>
-
-      <h2>blogs</h2>
-      {[...blogs]
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            user={user}
-            handleLike={handleLike}
-            handleDeleteBlog={handleDeleteBlog}
-          />
-        ))}
+      <Routes>
+        <Route path="/users" element={<Users />} />
+        <Route
+          path="/"
+          element={<Blogs blogs={blogs} user={user} handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} />}
+        />
+      </Routes>
     </div>
   )
 }
