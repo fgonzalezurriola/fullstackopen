@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, user, handleLike, handleDeleteBlog }) => {
+const BlogList = ({ blog, user, handleLike, handleDeleteBlog }) => {
   const [displayDetails, setDisplayDetails] = useState(false)
   const blogStyle = {
     paddingTop: 10,
@@ -52,4 +52,4 @@ const Blog = ({ blog, user, handleLike, handleDeleteBlog }) => {
   )
 }
 
-export default Blog
+export default BlogList

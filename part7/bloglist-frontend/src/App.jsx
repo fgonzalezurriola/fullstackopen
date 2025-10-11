@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Users from './components/Users'
 import User from './components/User'
+import BlogView from './components/BlogView'
+import Blogs from './components/Blogs'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import Togglable from './components/Togglable'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useContext } from 'react'
 import NotificationContext from './NotificationContext'
 import UserContext from './UserContext'
 import { Link, Route, Routes } from 'react-router-dom'
-import Blogs from './components/Blogs'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -141,19 +141,15 @@ const App = () => {
       </div>
 
       <Routes>
-        <Route path="/users/:id" element={<User />} />
-        <Route path="/users" element={<Users />} />
         <Route
-          path="/"
+          path="/blogs/:id"
           element={
-            <Blogs
-              blogs={blogs}
-              user={user}
-              handleLike={handleLike}
-              handleDeleteBlog={handleDeleteBlog}
-            />
+            <BlogView handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} user={user} />
           }
         />
+        <Route path="/users/:id" element={<User />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/" element={<Blogs blogs={blogs} />} />
       </Routes>
     </div>
   )

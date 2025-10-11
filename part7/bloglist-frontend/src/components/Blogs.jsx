@@ -1,8 +1,8 @@
-import Blog from './Blog'
+import { Link } from 'react-router-dom'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable'
 
-const Blogs = ({ blogs, user, handleLike, handleDeleteBlog }) => {
+const Blogs = ({ blogs }) => {
   return (
     <>
       <Togglable buttonLabel="create new blog">
@@ -13,13 +13,11 @@ const Blogs = ({ blogs, user, handleLike, handleDeleteBlog }) => {
       {[...blogs]
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            user={user}
-            handleLike={handleLike}
-            handleDeleteBlog={handleDeleteBlog}
-          />
+          <div key={blog.id}>
+            <Link to={`/blogs/${blog.id}`}>
+              {blog.title} {blog.author}
+            </Link>
+          </div>
         ))}
     </>
   )
