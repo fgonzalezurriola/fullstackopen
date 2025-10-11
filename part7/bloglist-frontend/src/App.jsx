@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
-import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Users from './components/Users'
+import User from './components/User'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Togglable from './components/Togglable'
@@ -142,10 +141,18 @@ const App = () => {
       </div>
 
       <Routes>
+        <Route path="/users/:id" element={<User />} />
         <Route path="/users" element={<Users />} />
         <Route
           path="/"
-          element={<Blogs blogs={blogs} user={user} handleLike={handleLike} handleDeleteBlog={handleDeleteBlog} />}
+          element={
+            <Blogs
+              blogs={blogs}
+              user={user}
+              handleLike={handleLike}
+              handleDeleteBlog={handleDeleteBlog}
+            />
+          }
         />
       </Routes>
     </div>
