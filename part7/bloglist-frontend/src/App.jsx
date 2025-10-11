@@ -12,6 +12,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import NotificationContext from './NotificationContext'
 import UserContext from './UserContext'
 import { Link, Route, Routes } from 'react-router-dom'
+import Menu from './components/Menu'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -117,27 +118,16 @@ const App = () => {
     )
   }
 
-  const padding = {
-    padding: 5,
-  }
 
   return (
     <div>
       <h1>BlogsApp</h1>
       <Notification />
 
-      <div>
-        <Link style={padding} to="/">
-          home
-        </Link>
-        <Link style={padding} to="/users">
-          users
-        </Link>
-      </div>
+      <Menu user={user} handleLogout={handleLogout} />
 
       <div>
-        {user.username} logged in
-        <button onClick={handleLogout}>logout</button>
+
       </div>
 
       <Routes>
