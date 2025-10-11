@@ -1,13 +1,11 @@
 import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import blogService from '../services/blogs'
+import { useBlogs } from '../hooks/useBlogs'
+import CommentForm from './CommentForm'
+import Comments from './Comments'
 
 const BlogView = ({ handleLike, handleDeleteBlog, user }) => {
   const { id } = useParams()
-  const { data: blogs = [] } = useQuery({
-    queryKey: ['blogs'],
-    queryFn: blogService.getAll,
-  })
+  const { data: blogs = [] } = useBlogs()
 
   const blog = blogs.find((b) => b.id === id)
 
@@ -29,6 +27,9 @@ const BlogView = ({ handleLike, handleDeleteBlog, user }) => {
       </div>
       <div>added by {blog.user?.username || blog.user?.name}</div>
       {isOwner && <button onClick={() => handleDeleteBlog(blog.id)}>remove</button>}
+
+      <CommentForm blogId={blog.id} />
+      <Comments blog={blog} />
     </div>
   )
 }

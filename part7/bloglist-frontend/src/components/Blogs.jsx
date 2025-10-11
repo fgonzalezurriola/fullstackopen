@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable'
 
+// List of blogs in "/" route
+
 const Blogs = ({ blogs }) => {
   const blogStyle = {
     paddingTop: 10,

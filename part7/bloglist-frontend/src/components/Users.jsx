@@ -1,12 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import userService from '../services/users'
+import { useUsers } from '../hooks/useUsers'
 
 const Users = () => {
-  const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: userService.getAll,
-  })
+  const { data: users = [] } = useUsers()
 
   return (
     <div>

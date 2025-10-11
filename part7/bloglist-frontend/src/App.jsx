@@ -8,20 +8,21 @@ import Blogs from './components/Blogs'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import NotificationContext from './NotificationContext'
-import UserContext from './UserContext'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import Menu from './components/Menu'
+import UserContext from './UserContext'
+import { useBlogs, useUpdateBlog, useDeleteBlog } from './hooks/useBlogs'
+import useNotification from './hooks/useNotification'
 
 const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [notification, notificationDispatch] = useContext(NotificationContext)
+  const { setNotification } = useNotification()
   const [user, userDispatch] = useContext(UserContext)
-  const queryClient = useQueryClient()
-  const { data: blogs = [] } = useQuery({ queryKey: ['blogs'], queryFn: blogService.getAll })
+  const { data: blogs = [] } = useBlogs()
+  const updateBlogMutation = useUpdateBlog()
+  const deleteBlogMutation = useDeleteBlog()
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -39,13 +40,13 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       userDispatch({ type: 'SET_USER', payload: user })
-      notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Login successful ${username}` })
+      setNotification(`Login successful ${username}`)
       setUsername('')
       setPassword('')
       console.log('logged in', user)
     } catch {
       console.log('error in handlelogin')
-      notificationDispatch({ type: 'SET_NOTIFICATION', payload: 'wrong credentials' })
+      setNotification('wrong credentials')
     }
   }
 
@@ -65,34 +66,15 @@ const App = () => {
       user: blog.user?.id || blog.user?._id || blog.user,
     }
 
-    blogService.update(id, updatedBlog).then((returnedBlog) => {
-      const blogToUpdate = {
-        ...returnedBlog,
-        user: returnedBlog.user || blog.user,
-      }
-      queryClient.setQueryData(['blogs'], (oldBlogs) =>
-        oldBlogs.map((b) => (b.id !== id ? b : blogToUpdate)),
-      )
-    })
-
+    updateBlogMutation.mutate({ id, updatedBlog, blog })
     console.log('blog liked', blog)
   }
 
   const handleDeleteBlog = (id) => {
     const blog = blogs.find((b) => b.id === id)
     if (window.confirm(`Remove blog ${blog.title}`)) {
-      blogService
-        .deleteBlog(blog.id)
-        .then(() => {
-          queryClient.setQueryData(['blogs'], (oldBlogs) => oldBlogs.filter((b) => b.id !== id))
-          notificationDispatch({ type: 'SET_NOTIFICATION', payload: `Blog ${blog.title} deleted` })
-        })
-        .catch((error) => {
-          notificationDispatch({
-            type: 'SET_NOTIFICATION',
-            payload: `Error: ${error.response?.data?.error || error.message}`,
-          })
-        })
+      deleteBlogMutation.mutate(id)
+      setNotification(`Blog ${blog.title} deleted`)
     }
     console.log('blog deleted', blog)
   }
@@ -118,17 +100,12 @@ const App = () => {
     )
   }
 
-
   return (
     <div>
       <h1>BlogsApp</h1>
       <Notification />
 
       <Menu user={user} handleLogout={handleLogout} />
-
-      <div>
-
-      </div>
 
       <Routes>
         <Route
