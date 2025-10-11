@@ -13,6 +13,7 @@ import Menu from './components/Menu'
 import UserContext from './UserContext'
 import { useBlogs, useUpdateBlog, useDeleteBlog } from './hooks/useBlogs'
 import useNotification from './hooks/useNotification'
+import { Typography } from '@mui/material'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -102,7 +103,9 @@ const App = () => {
 
   return (
     <div>
-      <h1>BlogsApp</h1>
+      <Typography variant="h1" sx={{ mb: 2, textShadow: '1px 1px 2px black', color: 'blue' }}>
+        BlogsApp
+      </Typography>
       <Notification />
 
       <Menu user={user} handleLogout={handleLogout} />

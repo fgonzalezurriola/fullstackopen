@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useUsers } from '../hooks/useUsers'
+import { Container, List, ListItem, ListItemText } from '@mui/material'
 
 const User = () => {
   const { id } = useParams()
@@ -12,15 +13,17 @@ const User = () => {
   }
 
   return (
-    <div>
+    <Container>
       <h2>{user.username}</h2>
-      <h3>added blogs</h3>
-      <ul>
+      added blogs
+      <List>
         {user.blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListItem key={blog.id}>
+            <ListItemText primary={blog.title} />
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Container>
   )
 }
 

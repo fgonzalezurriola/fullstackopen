@@ -1,4 +1,5 @@
 import { useCreateBlog } from '../hooks/useBlogs'
+import { TextField, Button, Box, Typography } from '@mui/material'
 
 const BlogForm = () => {
   const createBlogMutation = useCreateBlog()
@@ -18,15 +19,25 @@ const BlogForm = () => {
   }
 
   return (
-    <div>
-      <h2>Create new blog</h2>
-      <form onSubmit={onCreate}>
-        Title: <input name="blog" data-testid="title-input" /> <br />
-        Author: <input name="author" data-testid="author-input" /> <br />
-        URL: <input name="url" data-testid="url-input" /> <br />
-        <button type="submit">Create</button>
-      </form>
-    </div>
+    <Box sx={{ mt: 2, mb: 2 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Create new blog
+      </Typography>
+      <Box component="form" onSubmit={onCreate}>
+        <TextField name="blog" label="Title" fullWidth margin="normal" data-testid="title-input" />
+        <TextField
+          name="author"
+          label="Author"
+          fullWidth
+          margin="normal"
+          data-testid="author-input"
+        />
+        <TextField name="url" label="URL" fullWidth margin="normal" data-testid="url-input" />
+        <Button variant="contained" type="submit" sx={{ mt: 1 }}>
+          Create
+        </Button>
+      </Box>
+    </Box>
   )
 }
 

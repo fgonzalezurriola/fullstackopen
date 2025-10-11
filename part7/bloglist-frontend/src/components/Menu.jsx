@@ -1,29 +1,23 @@
 import { Link } from 'react-router-dom'
-
-const MenuStyle = {
-  border: 'solid',
-  padding: 10,
-  borderWidth: 1,
-  marginBottom: 5,
-  backgroundColor: 'lightgrey',
-  width: '300px',
-}
-
-const padding = {
-  padding: 5,
-}
+import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material'
 
 const Menu = ({ user, handleLogout }) => {
   return (
-    <div style={MenuStyle}>
-      <Link style={padding} to="/">
-        blogs
-      </Link>
-      <Link style={padding} to="/users">
-        users
-      </Link>
-      {user.username} logged in<button onClick={handleLogout}> logout</button>
-    </div>
+    <AppBar position="static">
+      <Toolbar>
+        <Button color="inherit" component={Link} to="/">
+          blogs
+        </Button>
+        <Button color="inherit" component={Link} to="/users">
+          users
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography sx={{ mr: 2 }}>{user.username} logged in</Typography>
+        <Button color="inherit" onClick={handleLogout}>
+          logout
+        </Button>
+      </Toolbar>
+    </AppBar>
   )
 }
 

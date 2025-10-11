@@ -1,21 +1,31 @@
+import { Typography, List, ListItem, ListItemText } from '@mui/material'
+
 const Comments = ({ blog }) => {
   if (!blog.comments || blog.comments.length === 0) {
     return (
       <div>
-        <h3>comments</h3>
-        <p>No comments yet</p>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          comments
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          No comments yet
+        </Typography>
       </div>
     )
   }
 
   return (
     <div>
-      <h3>comments</h3>
-      <ul>
+      <Typography variant="h6" sx={{ mt: 2 }}>
+        comments
+      </Typography>
+      <List>
         {blog.comments.map((comment, index) => (
-          <li key={index}>{comment}</li>
+          <ListItem key={index}>
+            <ListItemText primary={comment} />
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </div>
   )
 }
